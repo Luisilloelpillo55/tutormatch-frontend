@@ -4,13 +4,20 @@ import { Layout } from './pages/layout/layout';
 import { Home } from './pages/home/home';
 import { authGuard } from './core/guards/auth-guard';
 import { publicGuard } from './core/guards/auth-guard';
+import { Register } from './pages/register/register';
 
 export const routes: Routes = [
   {
     // Ruta pública
     path: '',
-    canActivateChild: [publicGuard],
+    canActivate: [publicGuard],
     component: Landing,
+  },
+  { 
+    // Ruta pública para registro
+    path: 'registro',
+    canActivate: [publicGuard],
+    component: Register, 
   },
   {
     // Rutas privadas
@@ -18,7 +25,7 @@ export const routes: Routes = [
     component: Layout,
     canActivateChild: [authGuard],
     children: [
-      { path: 'home', component: Home }
+      { path: 'home', component: Home },
       // Aquí agregaremos luego las rutas de tus compañeros (catalogo, agenda, etc.)
     ],
   },
@@ -26,5 +33,5 @@ export const routes: Routes = [
     // Redirección si se escribe una URL que no existe
     path: '**',
     redirectTo: '',
-  }
+  },
 ];

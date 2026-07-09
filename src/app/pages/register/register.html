@@ -1,0 +1,173 @@
+<div class="register-page">
+  <div class="register-card">
+    <!-- Logo -->
+    <div class="logo">
+      <svg
+        width="30"
+        height="30"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
+        <path d="M6 12v5c0 2 4 3 6 3s6-1 6-3v-5" />
+      </svg>
+      TutorMatch
+    </div>
+
+    <h2 class="title">Crea tu cuenta</h2>
+    <p class="subtitle">Únete a la comunidad de aprendizaje.</p>
+
+    <!-- Alerta de error -->
+    <div class="alert alert-error" *ngIf="mensajeError">
+      <svg class="alert-icon" viewBox="0 0 20 20" fill="currentColor">
+        <path
+          fill-rule="evenodd"
+          d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+          clip-rule="evenodd"
+        />
+      </svg>
+      <span>{{ mensajeError }}</span>
+    </div>
+
+    <!-- Formulario -->
+    <form (ngSubmit)="onSubmit()" #registerForm="ngForm">
+      <!-- Nombre completo -->
+      <div class="form-group">
+        <label for="nombre">Nombre completo</label>
+        <div class="input-wrapper">
+          <svg class="input-icon" viewBox="0 0 20 20" fill="currentColor">
+            <path
+              fill-rule="evenodd"
+              d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
+              clip-rule="evenodd"
+            />
+          </svg>
+          <input
+            type="text"
+            id="nombre"
+            name="nombre"
+            [(ngModel)]="registroData.nombre"
+            required
+            minlength="3"
+            #nombreInput="ngModel"
+            placeholder="Ej. Juan Pérez"
+            [class.input-error]="nombreInput.invalid && (nombreInput.dirty || nombreInput.touched)"
+          />
+        </div>
+        <!-- Mensaje de error del nombre -->
+        <div
+          class="validation-message"
+          *ngIf="nombreInput.invalid && (nombreInput.dirty || nombreInput.touched)"
+        >
+          <span *ngIf="nombreInput.errors?.['required']">El nombre es obligatorio.</span>
+          <span *ngIf="nombreInput.errors?.['minlength']">Debe tener al menos 3 caracteres.</span>
+        </div>
+      </div>
+
+      <!-- Correo Institucional -->
+      <div class="form-group">
+        <label for="email">Correo Institucional</label>
+        <div class="input-wrapper">
+          <svg class="input-icon" viewBox="0 0 20 20" fill="currentColor">
+            <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+            <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+          </svg>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            [(ngModel)]="registroData.email"
+            required
+            email
+            #emailInput="ngModel"
+            placeholder="ejemplo@uteq.edu.mx"
+            [class.input-error]="emailInput.invalid && (emailInput.dirty || emailInput.touched)"
+          />
+        </div>
+        <!-- Mensaje de error del correo -->
+        <div
+          class="validation-message"
+          *ngIf="emailInput.invalid && (emailInput.dirty || emailInput.touched)"
+        >
+          <span *ngIf="emailInput.errors?.['required']">El correo es obligatorio.</span>
+          <span *ngIf="emailInput.errors?.['email']">Ingresa un formato de correo válido.</span>
+        </div>
+      </div>
+
+      <!-- Contraseña -->
+      <div class="form-group">
+        <label for="password">Contraseña</label>
+        <div class="input-wrapper">
+          <svg class="input-icon" viewBox="0 0 20 20" fill="currentColor">
+            <path
+              fill-rule="evenodd"
+              d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
+              clip-rule="evenodd"
+            />
+          </svg>
+          <input
+            [type]="showPassword ? 'text' : 'password'"
+            id="password"
+            name="password"
+            [(ngModel)]="registroData.password"
+            required
+            minlength="8"
+            pattern=".*[!@#$%^&*()_+{}\[\]:;<>,.?~\\/-].*"
+            #passwordInput="ngModel"
+            placeholder="Crea una contraseña segura"
+            [class.input-error]="
+              passwordInput.invalid && (passwordInput.dirty || passwordInput.touched)
+            "
+          />
+          <button
+            type="button"
+            class="toggle-password"
+            (click)="togglePassword()"
+            [attr.aria-label]="showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+          >
+            <!-- Ojo abierto / cerrado se mantiene igual... -->
+            <svg *ngIf="!showPassword" viewBox="0 0 20 20" fill="currentColor">
+              <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+              <path
+                fill-rule="evenodd"
+                d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
+                clip-rule="evenodd"
+              />
+            </svg>
+            <svg *ngIf="showPassword" viewBox="0 0 20 20" fill="currentColor">
+              <path
+                fill-rule="evenodd"
+                d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414l-1.473-1.473A10.014 10.014 0 0019.542 10C18.268 5.943 14.478 3 10 3a9.958 9.958 0 00-4.512 1.074l-1.78-1.781zm4.261 4.26l1.514 1.515a2.003 2.003 0 012.45 2.45l1.514 1.514a4 4 0 00-5.478-5.478z"
+                clip-rule="evenodd"
+              />
+              <path
+                d="M12.454 16.697L9.75 13.992a4 4 0 01-3.742-3.741L2.335 6.578A9.98 9.98 0 00.458 10c1.274 4.057 5.065 7 9.542 7 .847 0 1.669-.105 2.454-.303z"
+              />
+            </svg>
+          </button>
+        </div>
+        <!-- Mensaje de error de contraseña -->
+        <div
+          class="validation-message"
+          *ngIf="passwordInput.invalid && (passwordInput.dirty || passwordInput.touched)"
+        >
+          <span *ngIf="passwordInput.errors?.['required']">La contraseña es obligatoria.</span>
+          <span *ngIf="passwordInput.errors?.['minlength']">Mínimo 8 caracteres.</span>
+          <span *ngIf="passwordInput.errors?.['pattern']"
+            >Debe incluir al menos un carácter especial (!@#$% etc).</span
+          >
+        </div>
+      </div>
+
+      <!-- Botón -->
+      <button type="submit" class="btn-primary" [disabled]="!registerForm.form.valid || cargando">
+        <span *ngIf="cargando" class="spinner"></span>
+        {{ cargando ? 'Registrando...' : 'Crear Cuenta' }}
+      </button>
+    </form>
+  </div>
+</div>

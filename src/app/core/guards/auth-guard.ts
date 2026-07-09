@@ -1,6 +1,6 @@
 import { inject } from '@angular/core';
-import { CanActivateChildFn, Router } from '@angular/router';
-import { AuthService } from '../services/auth';
+import { CanActivateChildFn, CanActivateFn, Router } from '@angular/router';
+import { AuthService } from '../services/auth/auth';
 
 export const authGuard: CanActivateChildFn = async (childRoute, state) => {
   const authService = inject(AuthService);
@@ -16,16 +16,14 @@ export const authGuard: CanActivateChildFn = async (childRoute, state) => {
   return false;
 };
 
-export const publicGuard: CanActivateChildFn = async (route, state) => {
+export const publicGuard: CanActivateFn = async (route, state) => {
   const authService = inject(AuthService);
   const router = inject(Router);
-
   const isAuthenticated = await authService.waitForAuthReady();
 
   if (isAuthenticated) {
     router.navigate(['/app/home']);
     return false;
   }
-
   return true;
 };

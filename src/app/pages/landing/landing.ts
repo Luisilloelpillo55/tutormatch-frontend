@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { AuthService } from '../../core/services/auth';
+import { AuthService } from '../../core/services/auth/auth';
 
 @Component({
   selector: 'app-landing',

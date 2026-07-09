@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { OAuthService } from 'angular-oauth2-oidc';
-import { authConfig } from '../auth.config';
+import { authConfig } from '../../auth.config';
 import { jwtDecode } from 'jwt-decode';
 import { Router } from '@angular/router';
 
