@@ -56,12 +56,6 @@ export class AuthService {
     return 'Invitado';
   }
 
-  public hasRole(rolBuscado: string): boolean {
-    const payload = this.decodedToken;
-    const roles: string[] = payload?.roles || [];
-    return roles.includes(rolBuscado);
-  }
-
   public login(): void {
     this.oauthService.initCodeFlow();
   }
@@ -77,5 +71,23 @@ export class AuthService {
   public async waitForAuthReady(): Promise<boolean> {
     await this.initialLoadPromise;
     return this.isLoggedIn;
+  }
+
+  // Métodos para obtener información del usuario
+
+  public hasRole(rolBuscado: string): boolean {
+    const payload = this.decodedToken;
+    const roles: string[] = payload?.roles || [];
+    return roles.includes(rolBuscado);
+  }
+
+  public get userId(): string {
+    const payload = this.decodedToken;
+    return payload?.usuario_id || '';
+  }
+
+  public get userEmail(): string {
+    const payload = this.decodedToken;
+    return payload?.sub || '';
   }
 }
