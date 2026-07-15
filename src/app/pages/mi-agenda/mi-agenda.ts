@@ -2,7 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SesionService, SesionResponse, SesionRequest, SesionUpdate } from '../../core/services/sesion/sesion';
+import { InscripcionService, AgendaAlumno } from '../../core/services/inscripcion/inscripcion';
 import { ToastService } from '../../core/services/toast/toast';
+import { AuthService } from '../../core/services/auth/auth';
 import { Toast } from '../../shared/components/toast/toast';
 
 @Component({
@@ -14,59 +16,70 @@ import { Toast } from '../../shared/components/toast/toast';
 })
 export class MiAgenda implements OnInit {
 
-  // Lista de sesiones activas futuras del tutor
-  sesiones: SesionResponse[] = [];
-
-  // Estado de carga general
-  cargando = false;
+  // -----------------------------------------------------------------------
+  // Sección TUTOR (HU-10, 11, 12) — sesiones a impartir
+  // -----------------------------------------------------------------------
+  sesionesComoTutor: SesionResponse[] = [];
+  cargandoTutor = false;
 
   // -----------------------------------------------------------------------
-  // Estado del formulario (crear / editar)
+  // Sección ALUMNO (HU-15, 16) — sesiones a asistir
+  // -----------------------------------------------------------------------
+  sesionesComoAlumno: AgendaAlumno[] = [];
+  cargandoAlumno = false;
+
+  // -----------------------------------------------------------------------
+  // Estado del formulario (crear / editar sesiones como tutor)
   // -----------------------------------------------------------------------
   mostrarFormulario = false;
   modoEdicion = false;
   sesionEditandoId: string | null = null;
-
-  /** Indica si la sesión que se edita ya tiene inscritos → bloquear fecha */
   fechaBloqueada = false;
-
   formulario: SesionRequest = this.formularioVacio();
-
-  // -----------------------------------------------------------------------
-  // Constructor e inicialización
-  // -----------------------------------------------------------------------
 
   constructor(
     private sesionService: SesionService,
+    private inscripcionService: InscripcionService,
     public toastService: ToastService,
+    public authService: AuthService,
   ) {}
 
   ngOnInit(): void {
-    this.cargarAgenda();
+    if (this.authService.hasRole('ROLE_TUTOR')) {
+      this.cargarAgendaTutor();
+    }
+    if (this.authService.hasRole('ROLE_ALUMNO')) {
+      this.cargarAgendaAlumno();
+    }
   }
 
-  // -----------------------------------------------------------------------
-  // HU-10: Cargar la agenda
-  // -----------------------------------------------------------------------
+  // =========================================================================
+  // SECCIÓN TUTOR — HU-10: Cargar sesiones a impartir
+  // =========================================================================
 
-  cargarAgenda(): void {
-    this.cargando = true;
+  cargarAgendaTutor(): void {
+    this.cargandoTutor = true;
     this.sesionService.getAgenda().subscribe({
-      next: (data) => {
-        this.sesiones = data;
-        this.cargando = false;
-      },
-      error: (err) => {
-        console.error(err);
-        this.toastService.mostrar('No se pudo cargar tu agenda. Intenta de nuevo.', 'error');
-        this.cargando = false;
-      },
+      next: (data) => { this.sesionesComoTutor = data; this.cargandoTutor = false; },
+      error: () => { this.toastService.mostrar('No se pudo cargar tu agenda como tutor.', 'error'); this.cargandoTutor = false; },
     });
   }
 
-  // -----------------------------------------------------------------------
-  // HU-09: Abrir formulario para nueva sesión
-  // -----------------------------------------------------------------------
+  // =========================================================================
+  // SECCIÓN ALUMNO — HU-15: Cargar sesiones a asistir
+  // =========================================================================
+
+  cargarAgendaAlumno(): void {
+    this.cargandoAlumno = true;
+    this.inscripcionService.getAgendaAlumno().subscribe({
+      next: (data) => { this.sesionesComoAlumno = data; this.cargandoAlumno = false; },
+      error: () => { this.toastService.mostrar('No se pudo cargar tu agenda como alumno.', 'error'); this.cargandoAlumno = false; },
+    });
+  }
+
+  // =========================================================================
+  // SECCIÓN TUTOR — HU-09: Abrir formulario nueva sesión
+  // =========================================================================
 
   abrirFormularioNuevo(): void {
     this.modoEdicion = false;
@@ -76,19 +89,15 @@ export class MiAgenda implements OnInit {
     this.mostrarFormulario = true;
   }
 
-  // -----------------------------------------------------------------------
-  // HU-11: Abrir formulario para editar sesión existente
-  // -----------------------------------------------------------------------
+  // =========================================================================
+  // SECCIÓN TUTOR — HU-11: Abrir formulario editar sesión
+  // =========================================================================
 
   abrirFormularioEditar(sesion: SesionResponse): void {
     this.modoEdicion = true;
     this.sesionEditandoId = sesion.id;
-    // Si ya hay inscritos, la fecha queda deshabilitada
     this.fechaBloqueada = sesion.inscritos > 0;
-
-    // Convertir fecha ISO a formato compatible con datetime-local input
-    const fechaLocal = sesion.fechaHora.substring(0, 16); // "2026-08-15T10:30"
-
+    const fechaLocal = sesion.fechaHora.substring(0, 16);
     this.formulario = {
       titulo: sesion.titulo,
       descripcion: sesion.descripcion,
@@ -103,131 +112,94 @@ export class MiAgenda implements OnInit {
     this.mostrarFormulario = false;
   }
 
-  // -----------------------------------------------------------------------
+  // =========================================================================
   // HU-09 / HU-11: Guardar sesión (crear o actualizar)
-  // -----------------------------------------------------------------------
+  // =========================================================================
 
   guardarSesion(): void {
-    // Validación frontend básica
     if (!this.formulario.titulo?.trim()) {
-      this.toastService.mostrar('El título es obligatorio.', 'error');
-      return;
+      this.toastService.mostrar('El título es obligatorio.', 'error'); return;
     }
     if (!this.formulario.fechaHora) {
-      this.toastService.mostrar('La fecha y hora son obligatorias.', 'error');
-      return;
+      this.toastService.mostrar('La fecha y hora son obligatorias.', 'error'); return;
     }
     if (!this.formulario.cupoMaximo || this.formulario.cupoMaximo < 1) {
-      this.toastService.mostrar('El cupo máximo debe ser al menos 1.', 'error');
-      return;
+      this.toastService.mostrar('El cupo máximo debe ser al menos 1.', 'error'); return;
     }
-
-    // Validar fecha futura (mínimo 1 hora) en el frontend como primera línea
     const fechaSeleccionada = new Date(this.formulario.fechaHora);
     const limiteMinimo = new Date(Date.now() + 60 * 60 * 1000);
     if (!this.fechaBloqueada && fechaSeleccionada <= limiteMinimo) {
-      this.toastService.mostrar('La fecha debe ser al menos 1 hora en el futuro.', 'error');
-      return;
+      this.toastService.mostrar('La fecha debe ser al menos 1 hora en el futuro.', 'error'); return;
     }
 
-    this.cargando = true;
+    this.cargandoTutor = true;
 
     if (this.modoEdicion && this.sesionEditandoId) {
-      // HU-11: Editar
       const update: SesionUpdate = {
         titulo: this.formulario.titulo,
         descripcion: this.formulario.descripcion,
         lugar: this.formulario.lugar,
         cupoMaximo: this.formulario.cupoMaximo,
       };
-      // Solo enviar fecha si NO está bloqueada
-      if (!this.fechaBloqueada) {
-        update.fechaHora = this.formulario.fechaHora + ':00'; // agregar segundos
-      }
+      if (!this.fechaBloqueada) update.fechaHora = this.formulario.fechaHora + ':00';
 
       this.sesionService.actualizar(this.sesionEditandoId, update).subscribe({
-        next: () => {
-          this.toastService.mostrar('¡Sesión actualizada correctamente!', 'success');
-          this.cerrarFormulario();
-          this.cargarAgenda();
-        },
-        error: (err) => {
-          const msg = err.error || 'Error al actualizar la sesión.';
-          this.toastService.mostrar(msg, 'error');
-          this.cargando = false;
-        },
+        next: () => { this.toastService.mostrar('¡Sesión actualizada!', 'success'); this.cerrarFormulario(); this.cargarAgendaTutor(); },
+        error: (err) => { this.toastService.mostrar(err.error || 'Error al actualizar.', 'error'); this.cargandoTutor = false; },
       });
-
     } else {
-      // HU-09: Crear
-      const request: SesionRequest = {
-        ...this.formulario,
-        fechaHora: this.formulario.fechaHora + ':00', // agregar segundos para ISO-8601
-      };
-
+      const request: SesionRequest = { ...this.formulario, fechaHora: this.formulario.fechaHora + ':00' };
       this.sesionService.crear(request).subscribe({
-        next: () => {
-          this.toastService.mostrar('¡Sesión publicada exitosamente!', 'success');
-          this.cerrarFormulario();
-          this.cargarAgenda();
-        },
-        error: (err) => {
-          const msg = err.error || 'Error al publicar la sesión.';
-          this.toastService.mostrar(msg, 'error');
-          this.cargando = false;
-        },
+        next: () => { this.toastService.mostrar('¡Sesión publicada!', 'success'); this.cerrarFormulario(); this.cargarAgendaTutor(); },
+        error: (err) => { this.toastService.mostrar(err.error || 'Error al publicar.', 'error'); this.cargandoTutor = false; },
       });
     }
   }
 
-  // -----------------------------------------------------------------------
-  // HU-12: Cancelar sesión con confirmación via ToastService
-  // -----------------------------------------------------------------------
+  // =========================================================================
+  // SECCIÓN TUTOR — HU-12: Cancelar sesión propia
+  // =========================================================================
 
-  confirmarCancelacion(sesion: SesionResponse): void {
+  confirmarCancelacionSesion(sesion: SesionResponse): void {
     this.toastService.preguntar(
-      `¿Estás seguro de cancelar "${sesion.titulo}"? Esta acción notificará a los alumnos inscritos.`,
-      () => this.ejecutarCancelacion(sesion.id),
+      `¿Cancelar "${sesion.titulo}"? Esto notificará a los alumnos inscritos.`,
+      () => {
+        this.sesionService.cancelar(sesion.id).subscribe({
+          next: () => { this.toastService.mostrar('Sesión cancelada.', 'info'); this.cargarAgendaTutor(); },
+          error: (err) => this.toastService.mostrar(err.error || 'Error al cancelar.', 'error'),
+        });
+      }
     );
   }
 
-  private ejecutarCancelacion(sesionId: string): void {
-    this.sesionService.cancelar(sesionId).subscribe({
-      next: () => {
-        this.toastService.mostrar('La sesión fue cancelada.', 'info');
-        this.cargarAgenda();
-      },
-      error: (err) => {
-        const msg = err.error || 'Error al cancelar la sesión.';
-        this.toastService.mostrar(msg, 'error');
-      },
-    });
+  // =========================================================================
+  // SECCIÓN ALUMNO — HU-16: Cancelar inscripción
+  // =========================================================================
+
+  confirmarCancelacionInscripcion(sesion: AgendaAlumno): void {
+    this.toastService.preguntar(
+      `¿Estás seguro de cancelar tu asistencia a "${sesion.titulo}"? Tu lugar quedará disponible para otros.`,
+      () => {
+        this.inscripcionService.cancelarInscripcion(sesion.inscripcionId).subscribe({
+          next: () => { this.toastService.mostrar('Inscripción cancelada. Tu lugar ha sido liberado.', 'info'); this.cargarAgendaAlumno(); },
+          error: (err) => this.toastService.mostrar(err.error || 'Error al cancelar.', 'error'),
+        });
+      }
+    );
   }
 
-  // -----------------------------------------------------------------------
+  // =========================================================================
   // Helpers
-  // -----------------------------------------------------------------------
+  // =========================================================================
 
   private formularioVacio(): SesionRequest {
-    return {
-      titulo: '',
-      descripcion: '',
-      lugar: '',
-      fechaHora: '',
-      cupoMaximo: 1,
-    };
+    return { titulo: '', descripcion: '', lugar: '', fechaHora: '', cupoMaximo: 1 };
   }
 
-  /** Formatea la fecha ISO para mostrarla legible en las tarjetas */
   formatearFecha(fechaIso: string): string {
-    const fecha = new Date(fechaIso);
-    return fecha.toLocaleDateString('es-MX', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
+    return new Date(fechaIso).toLocaleDateString('es-MX', {
+      weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+      hour: '2-digit', minute: '2-digit',
     });
   }
 }
