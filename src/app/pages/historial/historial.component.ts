@@ -21,10 +21,12 @@ export class HistorialComponent implements OnInit {
 
   // Estado del formulario de calificación
   sesionIdCalificando: string | null = null;
-  calificacion: number = 5;
+  tutorIdCalificando: string | null = null;
+  calificacion: number = 0;
   comentario: string = '';
   enviandoEvaluacion = false;
   sesionesCalificadas: Set<string> = new Set();
+  estrellas: number[] = [1, 2, 3, 4, 5];
 
   constructor(
     private historialService: HistorialService,
@@ -55,18 +57,26 @@ export class HistorialComponent implements OnInit {
     });
   }
 
-  abrirFormularioCalificar(sesionId: string): void {
+  abrirFormularioCalificar(sesionId: string, tutorId: string): void {
     this.sesionIdCalificando = sesionId;
-    this.calificacion = 5; // Valor por defecto
+    this.tutorIdCalificando = tutorId;
+    this.calificacion = 0; // Valor por defecto
     this.comentario = '';
+  }
+
+  setCalificacion(valor: number): void {
+    if (!this.enviandoEvaluacion) {
+      this.calificacion = valor;
+    }
   }
 
   cancelarCalificacion(): void {
     this.sesionIdCalificando = null;
+    this.tutorIdCalificando = null;
   }
 
   enviarCalificacion(): void {
-    if (!this.sesionIdCalificando) return;
+    if (!this.sesionIdCalificando || !this.tutorIdCalificando) return;
 
     if (this.calificacion < 1 || this.calificacion > 5) {
       this.toastService.mostrar('La calificación debe estar entre 1 y 5.', 'error');
@@ -75,6 +85,7 @@ export class HistorialComponent implements OnInit {
 
     const evaluacion: EvaluacionRequestDto = {
       sesionId: this.sesionIdCalificando,
+      tutorId: this.tutorIdCalificando,
       calificacion: this.calificacion,
       comentario: this.comentario.trim()
     };

@@ -1,5 +1,6 @@
 export interface EvaluacionRequestDto {
   sesionId: string;
+  tutorId: string;
   calificacion: number;
   comentario: string;
 }

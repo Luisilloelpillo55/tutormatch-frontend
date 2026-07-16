@@ -32,8 +32,8 @@ export const routes: Routes = [
       { path: 'mi-agenda', component: MiAgenda },
       // EP-04: Catálogo de tutorías (HU-13/14)
       { path: 'catalogo', component: Catalogo },
-      // EP-05/07: Historial y Calificaciones
-      { path: 'historial', loadComponent: () => import('./pages/historial/historial.component').then(m => m.HistorialComponent) },
+      // EP-05/07: Historial y Calificaciones (ahora bajo mis-tutorias)
+      { path: 'mis-tutorias', loadComponent: () => import('./pages/historial/historial.component').then(m => m.HistorialComponent) },
       // Aquí agregarán las rutas de los demás compañeros (admin, etc.)
     ],
   },

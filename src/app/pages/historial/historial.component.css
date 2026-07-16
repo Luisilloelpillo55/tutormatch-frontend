@@ -153,7 +153,6 @@
   color: var(--text-muted);
 }
 
-.form-group select,
 .form-group textarea {
   padding: 10px;
   border: 1px solid #cbd5e1;
@@ -161,6 +160,28 @@
   font-family: 'Inter', sans-serif;
   font-size: 0.95rem;
   outline: none;
+}
+
+.stars-select {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.star {
+  cursor: pointer;
+  color: #e2e8f0;
+  transition: color 0.2s ease, transform 0.2s ease;
+  width: 32px;
+  height: 32px;
+}
+
+.star:hover {
+  transform: scale(1.1);
+}
+
+.star.active {
+  color: var(--secondary-color);
 }
 
 .form-group select:focus,
