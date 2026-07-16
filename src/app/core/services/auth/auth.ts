@@ -27,7 +27,7 @@ export class AuthService {
       });
   }
 
-  private get decodedToken(): any {
+  public get decodedToken(): any {
     const token = this.oauthService.getAccessToken();
     if (!token) return null;
     try {

@@ -13,9 +13,9 @@
           <line x1="8" y1="2" x2="8" y2="6"></line>
           <line x1="3" y1="10" x2="21" y2="10"></line>
         </svg>
-        Mi Agenda
+        Mis Tutorías
       </h1>
-      <p class="agenda-subtitle">Tus compromisos académicos en un solo lugar</p>
+      <p class="agenda-subtitle">Tus tutorías como tutor o alumno inscrito</p>
     </div>
     <!-- Botón solo visible para TUTORES -->
     <button class="btn-nueva-sesion" *ngIf="authService.hasRole('ROLE_TUTOR')"
@@ -121,6 +121,9 @@
         </div>
 
         <div class="card-acciones">
+          <button class="btn-primary" type="button" (click)="irAlForo(sesion.id)" id="btn-ir-al-foro-{{ sesion.id }}">
+            Ir al foro
+          </button>
           <button class="btn-editar" (click)="abrirFormularioEditar(sesion)"
             id="btn-editar-{{ sesion.id }}">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
@@ -223,6 +226,9 @@
         </div>
 
         <div class="card-acciones">
+          <button class="btn-primary" type="button" (click)="irAlForo(sesion.sesionId)" id="btn-ir-al-foro-{{ sesion.sesionId }}">
+            Ir al foro
+          </button>
           <button class="btn-cancelar-inscripcion"
             (click)="confirmarCancelacionInscripcion(sesion)"
             id="btn-cancelar-inscripcion-{{ sesion.inscripcionId }}">

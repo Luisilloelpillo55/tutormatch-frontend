@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { SesionService, SesionResponse, SesionRequest, SesionUpdate } from '../../core/services/sesion/sesion';
 import { InscripcionService, AgendaAlumno } from '../../core/services/inscripcion/inscripcion';
 import { ToastService } from '../../core/services/toast/toast';
@@ -40,6 +41,7 @@ export class MiAgenda implements OnInit {
   constructor(
     private sesionService: SesionService,
     private inscripcionService: InscripcionService,
+    private router: Router,
     public toastService: ToastService,
     public authService: AuthService,
   ) {}
@@ -186,6 +188,10 @@ export class MiAgenda implements OnInit {
         });
       }
     );
+  }
+
+  irAlForo(sesionId: string): void {
+    this.router.navigate(['/app/sesion', sesionId, 'foro']);
   }
 
   // =========================================================================
