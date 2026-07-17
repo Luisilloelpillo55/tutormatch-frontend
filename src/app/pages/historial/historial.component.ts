@@ -25,7 +25,6 @@ export class HistorialComponent implements OnInit {
   calificacion: number = 0;
   comentario: string = '';
   enviandoEvaluacion = false;
-  sesionesCalificadas: Set<string> = new Set();
   estrellas: number[] = [1, 2, 3, 4, 5];
 
   constructor(
@@ -95,7 +94,13 @@ export class HistorialComponent implements OnInit {
       next: () => {
         this.toastService.mostrar('Calificación enviada exitosamente.', 'success');
         this.enviandoEvaluacion = false;
-        this.sesionesCalificadas.add(this.sesionIdCalificando!);
+        
+        // Actualizar el estado de la sesión localmente
+        const sesionActualizada = this.sesiones.find(s => s.id === this.sesionIdCalificando);
+        if (sesionActualizada) {
+          sesionActualizada.fueEvaluada = true;
+        }
+        
         this.sesionIdCalificando = null;
       },
       error: () => {
