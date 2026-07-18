@@ -1,0 +1,56 @@
+<div class="perfil-container">
+  <div class="perfil-header">
+    <div class="header-info">
+      <h1 class="perfil-title">
+        <svg
+          class="title-icon"
+          width="28"
+          height="28"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path
+            d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"
+            fill="none"
+          />
+        </svg>
+        Perfil
+      </h1>
+      <p class="perfil-subtitle">Revisa estadísticas sobre tu historial de tutorías.</p>
+    </div>
+  </div>
+
+  <!-- PESTAÑA: Trayectoria -->
+  <div class="tab-content">
+    <div class="loading-state" *ngIf="cargando">
+      <div class="loading-spinner"></div>
+      <p>Cargando estadísticas...</p>
+    </div>
+
+    <div class="stats-grid" *ngIf="!cargando">
+      <!-- Tarjetas de TUTOR -->
+      <ng-container *ngIf="authService.hasRole('ROLE_TUTOR') && estadisticasTutor">
+        <div class="stat-card stat-tutor" id="stat-sesiones-impartidas">
+          <span class="stat-valor">{{ estadisticasTutor.sesionesImpartidas }}</span>
+          <span class="stat-label">Sesiones impartidas</span>
+        </div>
+        <div class="stat-card stat-tutor" id="stat-alumnos-atendidos">
+          <span class="stat-valor">{{ estadisticasTutor.alumnosAtendidos }}</span>
+          <span class="stat-label">Alumnos atendidos</span>
+        </div>
+      </ng-container>
+
+      <!-- Tarjeta de ALUMNO -->
+      <ng-container *ngIf="authService.hasRole('ROLE_ALUMNO') && estadisticasAlumno">
+        <div class="stat-card stat-alumno" id="stat-tutorias-recibidas">
+          <span class="stat-valor">{{ estadisticasAlumno.tutoriasRecibidas }}</span>
+          <span class="stat-label">Tutorías recibidas</span>
+        </div>
+      </ng-container>
+    </div>
+  </div>
+</div>
