@@ -1,0 +1,544 @@
+/* =========================================================
+   EP-09: TABLERO DE PETICIONES
+   ========================================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+:host {
+  font-family: 'Inter', sans-serif;
+}
+
+/* -------------------------------------------------------
+   CONTENEDOR PRINCIPAL
+   ------------------------------------------------------- */
+.tablero-container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+}
+
+/* -------------------------------------------------------
+   HEADER
+   ------------------------------------------------------- */
+.tablero-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.tablero-title {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: #f1f5f9;
+  margin: 0 0 0.3rem 0;
+}
+
+.title-icon {
+  color: #818cf8;
+}
+
+.tablero-subtitle {
+  color: #94a3b8;
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+/* -------------------------------------------------------
+   BOTONES
+   ------------------------------------------------------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.6rem 1.2rem;
+  border-radius: 10px;
+  border: none;
+  font-size: 0.9rem;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #6366f1, #818cf8);
+  color: #fff;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, #4f46e5, #6366f1);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+}
+
+.btn-primary:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.07);
+  color: #cbd5e1;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.btn-danger {
+  background: linear-gradient(135deg, #dc2626, #ef4444);
+  color: #fff;
+}
+
+.btn-danger:hover:not(:disabled) {
+  background: linear-gradient(135deg, #b91c1c, #dc2626);
+  transform: translateY(-1px);
+}
+
+.btn-danger:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.btn-nueva {
+  white-space: nowrap;
+}
+
+/* -------------------------------------------------------
+   ESTADOS: LOADING / EMPTY
+   ------------------------------------------------------- */
+.loading-state,
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8rem;
+  padding: 4rem 2rem;
+  color: #94a3b8;
+  text-align: center;
+}
+
+.loading-spinner {
+  width: 44px;
+  height: 44px;
+  border: 3px solid rgba(99, 102, 241, 0.2);
+  border-top-color: #6366f1;
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.empty-icon {
+  opacity: 0.3;
+  margin-bottom: 0.5rem;
+}
+
+.empty-state h3 {
+  color: #cbd5e1;
+  font-size: 1.2rem;
+  margin: 0;
+}
+
+.empty-state p {
+  margin: 0;
+  max-width: 360px;
+}
+
+/* -------------------------------------------------------
+   GRID DE TARJETAS
+   ------------------------------------------------------- */
+.peticiones-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.25rem;
+}
+
+/* -------------------------------------------------------
+   TARJETA
+   ------------------------------------------------------- */
+.peticion-card {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 1.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+
+.peticion-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.04), transparent);
+  pointer-events: none;
+}
+
+.peticion-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+  border-color: rgba(99, 102, 241, 0.3);
+}
+
+/* Tarjeta atendida */
+.peticion-card.atendida {
+  opacity: 0.7;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.peticion-card.atendida::before {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.03), transparent);
+}
+
+.peticion-card.atendida:hover {
+  border-color: rgba(34, 197, 94, 0.25);
+}
+
+/* -------------------------------------------------------
+   BADGE DE ESTADO
+   ------------------------------------------------------- */
+.card-estado-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.7rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  align-self: flex-start;
+}
+
+.badge-activa {
+  background: rgba(99, 102, 241, 0.15);
+  color: #818cf8;
+  border: 1px solid rgba(99, 102, 241, 0.3);
+}
+
+.badge-atendida {
+  background: rgba(34, 197, 94, 0.12);
+  color: #4ade80;
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+/* -------------------------------------------------------
+   CONTENIDO DE TARJETA
+   ------------------------------------------------------- */
+.card-materia {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #f1f5f9;
+  margin: 0;
+  line-height: 1.3;
+}
+
+.card-descripcion {
+  font-size: 0.88rem;
+  color: #94a3b8;
+  line-height: 1.6;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.card-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: auto;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.meta-alumno {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.82rem;
+  color: #cbd5e1;
+}
+
+.alumno-avatar {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6366f1, #818cf8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: white;
+  flex-shrink: 0;
+}
+
+.meta-fecha {
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+/* Quién atendió */
+.card-atendida-por {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+  color: #4ade80;
+  background: rgba(34, 197, 94, 0.08);
+  padding: 0.4rem 0.7rem;
+  border-radius: 8px;
+}
+
+/* -------------------------------------------------------
+   ACCIONES DE TARJETA
+   ------------------------------------------------------- */
+.card-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.btn-accion {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.9rem;
+  border-radius: 8px;
+  border: none;
+  font-size: 0.8rem;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-eliminar {
+  background: rgba(239, 68, 68, 0.1);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.25);
+}
+
+.btn-eliminar:hover {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.4);
+}
+
+.btn-atender {
+  background: rgba(34, 197, 94, 0.1);
+  color: #4ade80;
+  border: 1px solid rgba(34, 197, 94, 0.25);
+}
+
+.btn-atender:hover:not(:disabled) {
+  background: rgba(34, 197, 94, 0.2);
+  border-color: rgba(34, 197, 94, 0.4);
+}
+
+.btn-atender:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* -------------------------------------------------------
+   MODAL
+   ------------------------------------------------------- */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(6px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  animation: fadeIn 0.18s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal-card {
+  background: #1e2233;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  width: 100%;
+  max-width: 520px;
+  animation: slideUp 0.22s ease;
+  overflow: hidden;
+}
+
+.modal-confirm {
+  max-width: 400px;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  text-align: center;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.4rem 1.6rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.modal-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #f1f5f9;
+  margin: 0;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  color: #64748b;
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  transition: color 0.15s;
+}
+
+.modal-close:hover { color: #94a3b8; }
+
+.modal-body {
+  padding: 1.4rem 1.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding: 1rem 1.6rem 1.4rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+/* -------------------------------------------------------
+   FORMULARIO
+   ------------------------------------------------------- */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.form-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #cbd5e1;
+}
+
+.required { color: #f87171; }
+
+.form-control {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  color: #f1f5f9;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9rem;
+  padding: 0.65rem 0.9rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+.form-control::placeholder { color: #475569; }
+
+.textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.form-hint {
+  font-size: 0.75rem;
+  color: #475569;
+}
+
+/* -------------------------------------------------------
+   CONFIRM MODAL ICONS
+   ------------------------------------------------------- */
+.confirm-icon {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: rgba(239, 68, 68, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #f87171;
+}
+
+.confirm-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #f1f5f9;
+  margin: 0;
+}
+
+.confirm-desc {
+  font-size: 0.88rem;
+  color: #94a3b8;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.confirm-actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+  margin-top: 0.5rem;
+}
+
+/* -------------------------------------------------------
+   RESPONSIVE
+   ------------------------------------------------------- */
+@media (max-width: 600px) {
+  .tablero-header { flex-direction: column; align-items: stretch; }
+  .btn-nueva { width: 100%; justify-content: center; }
+  .peticiones-grid { grid-template-columns: 1fr; }
+  .modal-card { margin: 0.5rem; }
+}

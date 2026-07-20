@@ -13,6 +13,7 @@ import { authGuard } from './core/guards/auth-guard';
 import { publicGuard } from './core/guards/auth-guard';
 import { Register } from './pages/register/register';
 import { Perfil } from './pages/perfil/perfil';
+import { Peticiones } from './pages/peticiones/peticiones';
 
 export const routes: Routes = [
   {
@@ -48,6 +49,7 @@ export const routes: Routes = [
       { path: 'sesion/:id/asistencia', component: TomarAsistencia },
       { path: 'mi-historial-asistencia', component: MiHistorialAsistencia },
       { path: 'perfil', component: Perfil },
+      { path: 'peticiones', component: Peticiones },
     ],
   },
   {
