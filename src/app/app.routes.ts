@@ -4,6 +4,7 @@ import { Layout } from './pages/layout/layout';
 import { MiAgenda } from './pages/mi-agenda/mi-agenda';
 import { Catalogo } from './pages/catalogo/catalogo';
 import { Admin } from './pages/admin/admin';
+import { AdminTutores } from './pages/admin-tutores/admin-tutores';
 import { AvisosBoard } from './pages/avisos-board/avisos-board';
 import { SesionForo } from './pages/sesion-foro/sesion-foro';
 import { TomarAsistencia } from './pages/tomar-asistencia/tomar-asistencia';
@@ -32,24 +33,18 @@ export const routes: Routes = [
     component: Layout,
     canActivateChild: [authGuard],
     children: [
-      // Redirección inteligente
       { path: '', redirectTo: 'catalogo', pathMatch: 'full' },
-      
-      // EP-03/04: Agendas (Mis Tutorías activas)
       { path: 'mi-agenda', component: MiAgenda },
-      
-      // EP-04: Catálogo de tutorías
       { path: 'catalogo', component: Catalogo },
-      
-      // EP-05/07: Historial y Calificaciones
-      { path: 'historial', loadComponent: () => import('./pages/historial/historial.component').then(m => m.HistorialComponent) },
-      
-      // EP-06: Avisos, Foro y Admin
+      {
+        path: 'historial',
+        loadComponent: () =>
+          import('./pages/historial/historial.component').then((m) => m.HistorialComponent),
+      },
       { path: 'admin', component: Admin },
+      { path: 'admin-tutores', component: AdminTutores },
       { path: 'avisos', component: AvisosBoard },
       { path: 'sesion/:id/foro', component: SesionForo },
-
-      // Asistencia y Perfil
       { path: 'sesion/:id/asistencia', component: TomarAsistencia },
       { path: 'mi-historial-asistencia', component: MiHistorialAsistencia },
       { path: 'perfil', component: Perfil },
