@@ -18,6 +18,7 @@ export interface SesionHistorialTutor {
 export interface EstadisticasTutor {
   sesionesImpartidas: number;
   alumnosAtendidos: number;
+  calificacion: number;
 }
 
 export interface EstadisticasAlumno {

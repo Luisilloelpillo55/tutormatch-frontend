@@ -1,0 +1,72 @@
+<section class="admin-section">
+  <h2>Solicitudes de rol Tutor pendientes</h2>
+
+  <!-- Estado: cargando solicitudes -->
+  <div class="loading-state" *ngIf="cargandoSolicitudes">
+    <div class="loading-spinner"></div>
+    <p>Cargando solicitudes pendientes...</p>
+  </div>
+
+  <!-- Estado: vacío solicitudes -->
+  <div
+    class="empty-state"
+    *ngIf="!cargandoSolicitudes && !errorSolicitudes && solicitudes.length === 0"
+  >
+    <svg
+      class="empty-icon"
+      width="64"
+      height="64"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.5"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <circle cx="11" cy="11" r="8"></circle>
+      <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+    </svg>
+    <h3>No hay solicitudes pendientes</h3>
+    <p>Por el momento no hay alumnos esperando revisión para convertirse en tutores.</p>
+  </div>
+
+  <!-- Tabla de solicitudes -->
+  <div
+    class="tabla-wrapper"
+    *ngIf="!cargandoSolicitudes && !errorSolicitudes && solicitudes.length > 0"
+  >
+    <table class="tabla-solicitudes">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Correo institucional</th>
+          <th>Justificación</th>
+          <th class="celda-acciones-header">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let solicitud of solicitudes">
+          <td class="celda-nombre">{{ solicitud.nombre }}</td>
+          <td class="celda-email">{{ solicitud.email }}</td>
+          <td class="celda-justificacion">{{ solicitud.justificacion }}</td>
+          <td class="celda-acciones">
+            <button
+              class="btn-accion btn-aprobar"
+              [disabled]="procesando.has(solicitud.id)"
+              (click)="aprobar(solicitud)"
+            >
+              Aprobar
+            </button>
+            <button
+              class="btn-accion btn-rechazar"
+              [disabled]="procesando.has(solicitud.id)"
+              (click)="rechazar(solicitud)"
+            >
+              Rechazar
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>

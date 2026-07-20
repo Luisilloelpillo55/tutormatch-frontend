@@ -24,7 +24,7 @@
     </div>
   </div>
 
-  <!-- PESTAÑA: Trayectoria -->
+  <!-- Estadisticas -->
   <div class="tab-content">
     <div class="loading-state" *ngIf="cargando">
       <div class="loading-spinner"></div>
@@ -42,6 +42,34 @@
           <span class="stat-valor">{{ estadisticasTutor.alumnosAtendidos }}</span>
           <span class="stat-label">Alumnos atendidos</span>
         </div>
+
+        <!-- NUEVA TARJETA DE CALIFICACIÓN -->
+        <div class="stat-card stat-tutor" id="stat-calificacion-promedio">
+          <span
+            class="stat-valor"
+            style="display: flex; align-items: center; gap: 8px; color: #b45309"
+          >
+            <svg
+              *ngIf="estadisticasTutor.calificacion > 0"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="#f59e0b"
+              style="width: 28px; height: 28px"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006z"
+                clip-rule="evenodd"
+              />
+            </svg>
+            {{
+              estadisticasTutor.calificacion > 0
+                ? (estadisticasTutor.calificacion | number: '1.1-1')
+                : 'N/A'
+            }}
+          </span>
+          <span class="stat-label">Calificación promedio</span>
+        </div>
       </ng-container>
 
       <!-- Tarjeta de ALUMNO -->
@@ -51,6 +79,111 @@
           <span class="stat-label">Tutorías recibidas</span>
         </div>
       </ng-container>
+    </div>
+  </div>
+
+  <!-- Solicitar ser Tutor (Solo Alumnos que no son tutores ni Admins) -->
+  <ng-container
+    *ngIf="
+      authService.hasRole('ROLE_ALUMNO') &&
+      !authService.hasRole('ROLE_TUTOR') &&
+      !authService.hasRole('ROLE_ADMIN')
+    "
+  >
+    <div class="solicitud-banner">
+      <div class="banner-content">
+        <h3>Convierte tu conocimiento en experiencia</h3>
+        <p>
+          Únete a nuestra red de tutores, ayuda a tus compañeros y certifica tus habilidades
+          académicas.
+        </p>
+      </div>
+
+      <!-- Botón visible si NO hay solicitud o si fue RECHAZADA -->
+      <button
+        class="btn-primary"
+        *ngIf="estadoSolicitud === 'NINGUNA' || estadoSolicitud === 'rechazado'"
+        (click)="abrirModal()"
+      >
+        {{ estadoSolicitud === 'rechazado' ? 'Volver a intentar' : 'Quiero ser Tutor' }}
+      </button>
+
+      <!-- Estado PENDIENTE -->
+      <div class="estado-solicitud estado-pendiente" *ngIf="estadoSolicitud === 'pendiente'">
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <circle cx="12" cy="12" r="10"></circle>
+          <polyline points="12 6 12 12 16 14"></polyline>
+        </svg>
+        Solicitud en revisión...
+      </div>
+
+      <!-- Estado RECHAZADA -->
+      <div class="estado-solicitud estado-rechazada" *ngIf="estadoSolicitud === 'rechazado'">
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="15" y1="9" x2="9" y2="15"></line>
+          <line x1="9" y1="9" x2="15" y2="15"></line>
+        </svg>
+        Solicitud previa rechazada
+      </div>
+    </div>
+  </ng-container>
+</div>
+
+<!-- Modal de Justificación -->
+<div class="modal-overlay" *ngIf="mostrarModal" (click)="cerrarModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <h3>Solicitar Rol de Tutor</h3>
+    <p>
+      Cuéntanos brevemente por qué te gustaría ser tutor y en qué materias destacas. (Mínimo 20
+      caracteres).
+    </p>
+
+    <textarea
+      rows="4"
+      placeholder="Ej. Soy muy bueno en cálculo integral y me gustaría apoyar a otros..."
+      [(ngModel)]="justificacion"
+      [disabled]="enviandoSolicitud"
+      [class.input-error]="justificacion.trim().length > 0 && justificacion.trim().length < 20"
+    ></textarea>
+
+    <!-- Contador de caracteres -->
+    <div
+      class="caracteres-counter"
+      [ngClass]="justificacion.trim().length < 20 ? 'text-error' : 'text-success'"
+    >
+      {{ justificacion.trim().length }} / 20
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-secondary" (click)="cerrarModal()" [disabled]="enviandoSolicitud">
+        Cancelar
+      </button>
+      <button
+        class="btn-primary"
+        (click)="enviarSolicitud()"
+        [disabled]="enviandoSolicitud || justificacion.trim().length < 20"
+      >
+        {{ enviandoSolicitud ? 'Enviando...' : 'Enviar solicitud' }}
+      </button>
     </div>
   </div>
 </div>

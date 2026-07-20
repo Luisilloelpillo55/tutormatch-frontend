@@ -73,6 +73,17 @@ export class AuthService {
     return this.isLoggedIn;
   }
 
+  public refrescarToken(): void {
+    this.oauthService
+      .refreshToken()
+      .then(() => {
+        window.location.reload();
+      })
+      .catch((err) => {
+        console.error('Error al intentar refrescar el token silenciosamente', err);
+      });
+  }
+
   // Redirección inteligente basada en el rol del JWT
   public redirigirSegunRol(): void {
     if (this.hasRole('ROLE_ADMIN')) {
